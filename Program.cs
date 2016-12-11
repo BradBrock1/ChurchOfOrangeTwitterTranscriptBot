@@ -23,31 +23,17 @@ namespace TwitterBot
     #endregion
     class Program
     {
-        //Randomise which tweets are being sent out
-        static Random r;
         static string[] tweets =
             {
-                ""
+                "Ui:\nSis, come on!\n You'd better get out of bed! \n Sis?!"
+                "Yui:\nAh, it's eight!\nI'm late!"
             };
-        static byte[] imageFile;
+        static int count = 0;
         static System.Threading.Thread t_checkTime = new System.Threading.Thread(new System.Threading.ThreadStart(checkTime));
         static void Main(string[] args)
         {
             try
             {
-                string[] files;
-                //TODO: Test if this works on Linux and Windows, if not just adapt to whoever is running the bot.
-                if (Environment.OSVersion.Platform != PlatformID.Unix) //Assume Windows
-                {
-                    files = Directory.GetFiles(Directory.GetCurrentDirectory() + "\\images");
-                    imageFile = File.ReadAllBytes(files[r.Next(0, files.Length)]); //Get a random image from the folder
-                }
-                else
-                {
-                    files = Directory.GetFiles(Directory.GetCurrentDirectory() + "/images");
-                    imageFile = File.ReadAllBytes(files[r.Next(0, files.Length)]); //Get a random image from the folder
-                }
-                r = new Random();
                 //Don't change the credentials, they are correct. If they aren't, tell me and I'll generate new ones.
                 Auth.SetUserCredentials("", "", "", "");
                 t_checkTime.Start();
@@ -76,11 +62,8 @@ namespace TwitterBot
                     #region TweetCode 
                     if (DateTime.Now.Hour == 8 && DateTime.Now.Minute == 0 || DateTime.Now.Hour == 12 && DateTime.Now.Minute == 0 || DateTime.Now.Hour == 16 && DateTime.Now.Minute == 0 || DateTime.Now.Hour == 20 && DateTime.Now.Minute == 0 || DateTime.Now.Hour == 24 && DateTime.Now.Minute == 0)
                     {
-                        var media = Upload.UploadImage(imageFile);
-                        var tweet = Tweet.PublishTweet(tweets[r.Next(0,tweets.Length)], new PublishTweetOptionalParameters //Publish the tweet with an image
-                        {
-                            Medias = new List<IMedia> { media }
-                        });
+                        Tweet.PublishTweet(tweets[count]);
+                        count++;
                     }
                     System.Threading.Thread.Sleep(45000); //Don't max out CPU pls.
                     //Every 45 seconds check. Since we check the minutes, we need to run a check under 60 seconds
